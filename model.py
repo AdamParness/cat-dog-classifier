@@ -165,24 +165,13 @@ history = model.fit(
     validation_steps=validation_generator.samples // BATCH_SIZE
 )
 
-# Save the model in multiple formats
+# Save the model
 print("Saving the model...")
 
-# 1. Save in H5 format (legacy but widely compatible)
-model.save(MODEL_SAVE_PATH)
-print(f"Model saved to {MODEL_SAVE_PATH}")
-
-# 2. Save in SavedModel format (recommended for TensorFlow serving)
-try:
-    saved_model_path = 'models/cat_dog_model'
-    tf.saved_model.save(model, saved_model_path)
-    print(f"SavedModel format saved to {saved_model_path}")
-except Exception as e:
-    print(f"Error saving in SavedModel format: {e}")
-
-# Skip TFLite conversion as it's causing errors
-print("TensorFlow Lite conversion skipped due to compatibility issues.")
-print("You can use the saved H5 or SavedModel formats for inference.")
+# Save in SavedModel format (recommended for TensorFlow 2.x)
+saved_model_path = 'models/cat_dog_model'
+tf.keras.models.save_model(model, saved_model_path, save_format='tf')
+print(f"Model saved to {saved_model_path}")
 
 # Print a summary of the model architecture
 model.summary()
