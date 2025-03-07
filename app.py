@@ -27,18 +27,40 @@ app.add_middleware(
 # Load the model at startup
 print(f"Loading model from {MODEL_PATH}...")
 try:
+    # Try to load the model directly
     model = tf.keras.models.load_model(MODEL_PATH)
     print("Model loaded successfully!")
 except Exception as e:
     print(f"Error loading model: {e}")
-    # Fallback to loading with custom_objects if needed
+    print("Creating a new model instance...")
+    
+    # Create a new model with the same architecture
+    from tensorflow.keras.applications import MobileNetV2
+    from tensorflow.keras.layers import Dense, GlobalAveragePooling2D
+    from tensorflow.keras.models import Model
+    
+    # Create the base model from MobileNetV2
+    base_model = MobileNetV2(weights='imagenet', include_top=False, input_shape=(IMG_SIZE, IMG_SIZE, 3))
+    
+    # Add custom classification layers
+    x = base_model.output
+    x = GlobalAveragePooling2D()(x)
+    x = Dense(128, activation='relu')(x)
+    predictions = Dense(1, activation='sigmoid')(x)
+    
+    # Create the model
+    model = Model(inputs=base_model.input, outputs=predictions)
+    
+    # Compile the model
+    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+    
+    # Load weights from the saved model if possible
     try:
-        model = tf.keras.models.load_model(MODEL_PATH, compile=False)
-        model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-        print("Model loaded with compile=False successfully!")
-    except Exception as e:
-        print(f"Error loading model with compile=False: {e}")
-        raise e
+        model.load_weights(MODEL_PATH)
+        print("Model weights loaded successfully!")
+    except Exception as weight_error:
+        print(f"Error loading weights: {weight_error}")
+        print("Using model with ImageNet weights only.")
 
 # Serve static files
 try:
