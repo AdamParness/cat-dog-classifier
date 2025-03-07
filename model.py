@@ -168,9 +168,9 @@ history = model.fit(
 # Save the model
 print("Saving the model...")
 
-# Save in .keras format (recommended for TensorFlow 2.13.0)
-model_save_path = 'models/cat_dog_classifier.keras'
-model.save(model_save_path, save_format='keras')
+# Save in H5 format (most compatible format)
+model_save_path = 'models/cat_dog_classifier.h5'
+model.save(model_save_path, save_format='h5')
 print(f"Model saved to {model_save_path}")
 
 # Print a summary of the model architecture

@@ -10,7 +10,7 @@ import tensorflow as tf
 import uvicorn
 
 # Constants
-MODEL_PATH = 'models/cat_dog_classifier.keras'  # Updated path to .keras model file
+MODEL_PATH = 'models/cat_dog_classifier.h5'  # Updated path to H5 model file
 IMG_SIZE = 224  # Same as in training
 
 app = FastAPI(title="Cat vs Dog Classifier API")
@@ -26,8 +26,19 @@ app.add_middleware(
 
 # Load the model at startup
 print(f"Loading model from {MODEL_PATH}...")
-model = tf.keras.models.load_model(MODEL_PATH)  # Simplified model loading
-print("Model loaded successfully!")
+try:
+    model = tf.keras.models.load_model(MODEL_PATH)
+    print("Model loaded successfully!")
+except Exception as e:
+    print(f"Error loading model: {e}")
+    # Fallback to loading with custom_objects if needed
+    try:
+        model = tf.keras.models.load_model(MODEL_PATH, compile=False)
+        model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+        print("Model loaded with compile=False successfully!")
+    except Exception as e:
+        print(f"Error loading model with compile=False: {e}")
+        raise e
 
 # Serve static files
 try:
