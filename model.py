@@ -168,10 +168,10 @@ history = model.fit(
 # Save the model
 print("Saving the model...")
 
-# Save in SavedModel format (recommended for TensorFlow 2.x)
-saved_model_path = 'models/cat_dog_model'
-tf.keras.models.save_model(model, saved_model_path, save_format='tf')
-print(f"Model saved to {saved_model_path}")
+# Save in .keras format (recommended for TensorFlow 2.13.0)
+model_save_path = 'models/cat_dog_classifier.keras'
+model.save(model_save_path, save_format='keras')
+print(f"Model saved to {model_save_path}")
 
 # Print a summary of the model architecture
 model.summary()
